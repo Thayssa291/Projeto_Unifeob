@@ -1,0 +1,87 @@
+﻿@model Contribuinte_Model
+@{
+    ViewData["Title"] = "Cadastrar novo contribuinte";
+    var mensagemData = ViewBag.MensagemData;
+    var mensagemCnpj = ViewBag.MensagemCnpj;
+    var mensagemRazao = ViewBag.MensagemRazao;
+    var mensagemRegime = ViewBag.MensagemRegime;
+}
+<h1>Cadastrar novo contribuinte</h1>
+<br />
+<form asp-controller="Contribuinte" asp-action="CriarContrib" method="post">
+    <div class="mb-3">
+        <label class="form-label">CNPJ:</label>
+        <input type="text" asp-for="Cnpj" class="form-control" id="Cnpj" placeholder="Digite o CNPJ" maxlength="18">
+    </div>
+    @if (!string.IsNullOrEmpty(mensagemCnpj)) {
+        <div class="text-danger">@mensagemCnpj</div>
+    }
+    <div class="mb-3">
+        <label class="form-label">Razão Social:</label>
+        <input type="text" asp-for="RazaoSocial" class="form-control" placeholder="Digite a Razão Social" maxlength="100">
+        @if (!string.IsNullOrEmpty(mensagemRazao)) {
+            <div class="text-danger">@mensagemRazao</div>
+        }
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Data de Abertura:</label>
+        <input type="date" asp-for="DataAbertura" class="form-control" id="DataAbertura">
+        @if (!string.IsNullOrEmpty(mensagemData)) {
+            <div class="text-danger">@mensagemData</div>
+        }
+    </div>
+    <div class="mb-3">
+        <label for="RegimeTributacao">Regime de Tributação</label>
+        <select asp-for="RegimeTributacao" class="form-control">
+            <option value="0">Selecione</option>
+            @if (ViewBag.Regimes != null) {
+                @foreach (var Regime in ViewBag.Regimes as List<SelectListItem>) {
+                    <option value="@Regime.Value">@Regime.Text</option>
+                }
+            }
+        </select>
+        @if (!string.IsNullOrEmpty(mensagemRegime)) {
+            <div class="text-danger">@mensagemRegime</div>
+        }
+    </div>
+    <div class="mb-3">
+        <div id="beneficios-container">
+            <div class="beneficio-select">
+                <label>Benefícios:</label>
+                @if (ViewBag.Beneficios != null && ViewBag.Beneficios.Count > 0) {
+                    @foreach (var beneficio in ViewBag.Beneficios as List<SelectListItem>) {
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="BeneficioId" value="@beneficio.Value">
+                            <label class="form-check-label" for="beneficio-@beneficio.Value">
+                                @beneficio.Text
+                            </label>
+                        </div>
+                    }
+                }
+                else {
+                    <span>Nenhum benefício disponível</span>
+                }
+            </div>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Salvar</button>
+    <button class="btn btn-secondary" asp-controller="Contribuinte" asp-action="ListagemContrib">Voltar</button>
+</form>
+</div>
+<script>
+    document.getElementById('Cnpj').addEventListener('input', function (e) {
+        var cnpj = e.target.value.replace(/\D/g, ''); // Remove qualquer caractere não numérico
+        if (cnpj.length <= 14) {
+            // Formatar o CNPJ (XX.XXX.XXX/XXXX-XX)
+            cnpj = cnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5');
+        }
+        e.target.value = cnpj;
+    });
+
+    // Remover a formatação do CNPJ antes de enviar o formulário
+    document.getElementById('form-contribuinte').addEventListener('submit', function (e) {
+        var cnpjInput = document.getElementById('Cnpj');
+        // Remove a formatação do CNPJ (pontos, barras e hífens)
+        cnpjInput.value = cnpjInput.value.replace(/\D/g, ''); // Remove todos os caracteres não numéricos
+    });
+</script>

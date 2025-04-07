@@ -1,0 +1,29 @@
+﻿@model Beneficio_Model
+@{
+    ViewData["Title"] = "Cadastrar novo contribuinte";
+    var mensagemBeneficio = ViewBag.MensagemBeneficio;
+    var mensagemPercentual = ViewBag.MensagemPercentual;
+}
+<h1>Editar Benefício</h1>
+<br />
+<form asp-controller="Beneficio" asp-action="EditarBeneficio" method="post">
+    <div class="mb-3">
+        <label class="form-label">Nome do Benefício:</label>
+        <input type="text" asp-for="nome_beneficio" class="form-control" id="nome_beneficio" placeholder="Digite um nome para o benefício" maxlength="100">
+    </div>
+    @if (!string.IsNullOrEmpty(mensagemBeneficio)) {
+        <div class="text-danger">@mensagemBeneficio</div>
+    }
+    <div class="mb-3">
+        <label class="form-label">Percentual(%):</label>
+        <input type="number" asp-for="percentual" class="form-control" id="percentual" placeholder="Digite o valor do percentual" step="0.01">
+    </div>
+    @if (!string.IsNullOrEmpty(mensagemPercentual)) {
+        <div class="text-danger">@mensagemPercentual</div>
+    }
+    </br>
+    <div>
+        <button type="submit" class="btn btn-primary">Salvar</button>
+        <button class="btn btn-secondary" asp-controller="Beneficio" asp-action="ListagemBeneficio">Voltar</button>
+    </div>
+</form>

@@ -1,0 +1,118 @@
+﻿@model Contribuinte_Model
+@{
+    ViewData["Title"] = "Cadastrar novo contribuinte";
+    var mensagemAtualizacao = ViewBag.MensagemAtualizacao;
+    var mensagemData = ViewBag.MensagemData;
+    var mensagemCnpj = ViewBag.MensagemCnpj;
+    var mensagemCnpjNull = ViewBag.MensagemCnpjNull;
+    var mensagemRazao = ViewBag.MensagemRazao;
+    var mensagemRegime = ViewBag.MensagemRegime;
+}
+<h1>Editar contribuinte</h1>
+</br>
+<form asp-controller="Contribuinte" asp-action="EditarContrib" method="post">
+    <div class="mb-3">
+        <label class="form-label">CNPJ:</label>
+        <input type="text" asp-for="Cnpj" class="form-control" id="Cnpj" placeholder="Digite o CNPJ" maxlength="18">
+    </div>
+    @if (!string.IsNullOrEmpty(mensagemCnpjNull)) {
+        <div class="text-danger">@mensagemCnpjNull</div>
+    }
+    @if (!string.IsNullOrEmpty(mensagemCnpj)) {
+        <div class="text-danger">@mensagemCnpj</div>
+    }
+    <div class="mb-3">
+        <label class="form-label">Razão Social:</label>
+        <input type="text" asp-for="RazaoSocial" class="form-control" placeholder="Digite a Razão Social" maxlength="100">
+        @if (!string.IsNullOrEmpty(mensagemRazao)) {
+            <div class="text-danger">@mensagemRazao</div>
+        }
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Data de Abertura:</label>
+        <input type="date" asp-for="DataAbertura" class="form-control" id="DataAbertura">
+        @if (!string.IsNullOrEmpty(mensagemData)) {
+            <div class="text-danger">@mensagemData</div>
+        }
+    </div>
+    <div class="mb-3">
+        <label for="RegimeTributacao">Regime de Tributação</label>
+        <select asp-for="RegimeTributacao" class="form-control">
+            <option value="0">Selecione</option>
+            @if (ViewBag.Regimes != null) {
+                @foreach (var Regime in ViewBag.Regimes as List<SelectListItem>) {
+                    <option value="@Regime.Value">@Regime.Text</option>
+                }
+            }
+        </select>
+        @if (!string.IsNullOrEmpty(mensagemRegime)) {
+            <div class="text-danger">@mensagemRegime</div>
+        }
+    </div>
+    <div class="mb-3">
+        <div id="beneficios-container">
+            <div class="beneficio-select">
+                <label>Benefícios:</label>
+                @if (ViewBag.Beneficios != null && ViewBag.Beneficios.Count > 0)
+                    @foreach (var beneficio in ViewBag.Beneficios as List<SelectListItem>) {
+                        <div class="form-check">
+                            @if (ViewBag.BeneficiosVinculados != null &&
+                           ViewBag.BeneficiosVinculados.Contains(beneficio.Value)) {
+                                <input class="form-check-input"
+                                       type="checkbox"
+                                       name="BeneficioId"
+                                       value="@beneficio.Value"
+                                       checked />
+                            }
+                            else {
+                                <input class="form-check-input"
+                                       type="checkbox"
+                                       name="BeneficioId"
+                                       value="@beneficio.Value" />
+                            }
+                            <label class="form-check-label" for="@beneficio.Value">@beneficio.Text</label>
+                        </div>
+                    }
+            </div>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Salvar</button>
+    <button class="btn btn-secondary" asp-controller="Contribuinte" asp-action="ListagemContrib">Voltar</button>
+</form>
+</div>
+<script>
+    // Função para formatar o CNPJ
+    function formatCNPJ(cnpj) {
+        // Remove qualquer caractere não numérico
+        cnpj = cnpj.replace(/\D/g, '');
+
+        // Verifica se o CNPJ tem 14 caracteres para formatar
+        if (cnpj.length === 14) {
+            return cnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5');
+        }
+
+        return cnpj; // Retorna o valor original caso o CNPJ não tenha 14 caracteres
+    }
+
+    // Formatar o CNPJ ao digitar
+    document.getElementById('Cnpj').addEventListener('input', function (e) {
+        var cnpj = e.target.value.replace(/\D/g, ''); // Remove qualquer caractere não numérico
+        e.target.value = formatCNPJ(cnpj); // Atualiza o campo com o CNPJ formatado
+    });
+
+    // Formatar o CNPJ assim que a página carregar
+    window.addEventListener('DOMContentLoaded', function () {
+        var cnpjInput = document.getElementById('Cnpj');
+        if (cnpjInput.value) {
+            cnpjInput.value = formatCNPJ(cnpjInput.value); // Formatar o CNPJ se já existir um valor
+        }
+    });
+
+    // Remover a formatação do CNPJ antes de enviar o formulário
+    document.getElementById('form-contribuinte').addEventListener('submit', function (e) {
+        var cnpjInput = document.getElementById('Cnpj');
+        // Remove a formatação do CNPJ (pontos, barras e hífens)
+        cnpjInput.value = cnpjInput.value.replace(/\D/g, ''); // Remove todos os caracteres não numéricos
+    });
+</script>

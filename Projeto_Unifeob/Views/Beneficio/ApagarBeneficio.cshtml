@@ -1,0 +1,14 @@
+﻿@model Beneficio_Model
+@{
+    ViewData["Title"] = "Tela de confirmação";
+    var mensagemApagar = ViewBag.MensagemApagar;
+}
+<div class="mb-3 text-center">
+    <h1>Deseja excluir o benefício "@Model.nome_beneficio"?</h1>
+    </br>
+    <a class="btn btn-danger" asp-controller="Beneficio" asp-action="Apagar" asp-route-id="@Model.Id">Sim</a>
+    <a class="btn btn-primary" asp-controller="Beneficio" asp-action="ListagemBeneficio">Não</a>
+    @if (!string.IsNullOrEmpty(mensagemApagar)) {
+        <div class="text-danger">@mensagemApagar</div>
+    }
+</div>

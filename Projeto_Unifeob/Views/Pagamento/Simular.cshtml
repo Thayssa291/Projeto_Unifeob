@@ -1,0 +1,127 @@
+﻿@model Pagamento_Model
+@{
+    ViewData["Title"] = "Cadastrar novo contribuinte";
+    var mensagemCnpj = ViewBag.MensagemCnpj;
+    var mensagemValor = ViewBag.MensagemValor;
+}
+<h1>Simulação de Pagamento</h1>
+<br />
+<form asp-action="Simular" method="post">
+    <div class="mb-3">
+        <label for="ContribuinteId">Selecione o Contribuinte:</label>
+        <select id="ContribuinteId" class="form-control" name="ContribuinteId">
+            <option value="">Selecione ou pesquise um Contribuinte</option>
+            @if (ViewBag.Contribuintes != null) {
+                @foreach (var contrib in ViewBag.Contribuintes) {
+                    <option value="@contrib.Value">@contrib.Text</option>
+                }
+            }
+            else {
+                <span>Nenhum contribuinte disponível</span>
+            }
+        </select>
+        @if (!string.IsNullOrEmpty(mensagemCnpj)) {
+            <div class="text-danger">@mensagemCnpj</div>
+        }
+    </div>
+    <div class="mb-3">
+        <label for="BeneficioId">Selecione o Benefício:</label>
+        <select id="BeneficioId" class="form-control" name="BeneficioId">
+            <option value="">Selecione</option>
+            @if (ViewBag.Beneficios != null && ViewBag.Beneficios.Count > 0) {
+                @foreach (var beneficio in ViewBag.Beneficios) {
+                    <option value="@beneficio.Value">@beneficio.Text</option>
+                }
+            }
+            else {
+                <span>Nenhum benefício disponível</span>
+            }
+        </select>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Valor inicial:</label>
+        <input type="number" asp-for="valor_inicial" class="form-control" placeholder="0.00" step="0.01" min="0" id="valorInicial">
+    </div>
+    @if (!string.IsNullOrEmpty(mensagemValor)) {
+        <div class="text-danger">@mensagemValor</div>
+    }
+    @if (Model.Desconto >= 0) {
+        <div class="mb-3">
+            <label for="disabledTextInput" class="form-label">Percentual de desconto:</label>
+            <span id="percentualDesconto" class="form-control">@Model.Desconto</span>
+        </div>
+    }
+    @if (Model.valor_total >= 0) {
+        <div class="mb-3">
+            <label for="disabledTextInput" class="form-label">Valor total:</label>
+            <span id="disabledTextInput" class="form-control">@Model.valor_total.ToString("C")</span>
+        </div>
+    }
+    <button type="submit" class="btn btn-success">Calcular</button>
+    <button class="btn btn-secondary" asp-controller="Home" asp-action="Index">Voltar</button>
+</form>
+@section Scripts {
+    <!-- Incluir jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Incluir Select2 -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+
+    <script>
+        // Inicializar o Select2 para o campo de Contribuinte
+        $(document).ready(function () {
+            $('#ContribuinteId').select2({
+                placeholder: 'Selecione ou pesquise um Contribuinte',
+                allowClear: true,
+                language: {
+                    noResults: function () {
+                        return "CNPJ não encontrado"; // Mensagem personalizada
+                    }
+                }
+            });
+
+            // Evento para quando o Contribuinte é alterado
+            $('#ContribuinteId').change(function () {
+                var contribuinteId = $(this).val();
+                var beneficioSelect = $('#BeneficioId');
+
+                if (contribuinteId) {
+                    // Realiza uma requisição Ajax para carregar os benefícios do contribuinte
+                    fetch('@Url.Action("ObterBeneficios", "Pagamento")?contribuinteId=' + contribuinteId)
+                        .then(response => response.json())
+                        .then(data => {
+                            beneficioSelect.empty();
+                            beneficioSelect.append('<option value="">Selecione</option>');
+                            if (data.length > 0) {
+                                data.forEach(function (beneficio) {
+                                    var option = $('<option>', {
+                                        value: beneficio.value,
+                                        text: beneficio.text
+                                    }).attr('data-percentual', beneficio.percentual);
+                                    beneficioSelect.append(option);
+                                });
+                            } else {
+                                beneficioSelect.append('<option value="" disabled>Sem benefícios disponíveis</option>');
+                            }
+                        });
+                } else {
+                    beneficioSelect.empty();
+                    beneficioSelect.append('<option value="">Selecione</option>');
+                }
+            });
+
+            // Evento para quando o Benefício é alterado
+            $('#BeneficioId').change(function () {
+                var beneficioSelecionado = $(this).find('option:selected');
+                var percentualDesconto = $('#percentualDesconto');
+
+                if (!beneficioSelecionado.val()) {
+                    percentualDesconto.text('0%');
+                } else {
+                    var percentual = beneficioSelecionado.data('percentual');
+                    percentualDesconto.text(percentual + '%');
+                }
+            });
+        });
+    </script>
+}

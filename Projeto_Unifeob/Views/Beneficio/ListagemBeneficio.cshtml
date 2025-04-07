@@ -1,0 +1,46 @@
+﻿@model IEnumerable<BeneficioComContribuinte_ViewModel>
+@{
+    ViewData["Title"] = "Listagem de Benefícios";
+}
+<div class="mb-3">
+    <a class="btn btn-primary" role="button" asp-controller="Beneficio" asp-action="CriarBeneficio">Novo Benefício</a>
+    </br></br>
+    <h1>Listagem de benefícios</h1>
+    </br>
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th scope="col">Nome do Benefício:</th>
+                <th scope="col">Percentual</th>
+                <th scope="col">Quantidade de contribuintes:</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any()) // Verifica se a Model não é nula e contém dados
+            {
+                @foreach (var beneficio in Model) {
+                    <tr>
+                        <td>@beneficio.Beneficio.nome_beneficio</td>
+                        <td>@beneficio.Beneficio.percentual%</td>
+                        @{
+                            int totalContribuintes = 0;
+                            @if (beneficio.Contribuinte != null && beneficio.Contribuinte.Any()) {
+                                @for (int i = 0; i < beneficio.Contribuinte.Count; i++) {
+                                    totalContribuintes++;
+                                }
+                            }
+                        }
+                        <td>@totalContribuintes</td>
+                        <td text-align: right>
+                            <div>
+                                <a class="btn btn-primary btn-sm" asp-route-id="@beneficio.Beneficio.Id" asp-controller="Beneficio" asp-action="EditarBeneficio">Editar</a>
+                                <a class="btn btn-danger btn-sm" asp-route-id="@beneficio.Beneficio.Id" asp-controller="Beneficio" asp-action="ApagarBeneficio">Apagar</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

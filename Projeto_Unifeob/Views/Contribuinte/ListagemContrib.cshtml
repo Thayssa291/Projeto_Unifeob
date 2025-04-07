@@ -1,0 +1,116 @@
+﻿@model IEnumerable<ContribuinteComBeneficios_ViewModel>
+@{
+    ViewData["Title"] = "Informações do Cadastro";
+}
+<div class="mb-3">
+    <a class="btn btn-primary" role="button" asp-controller="Contribuinte" asp-action="CriarContrib">Novo Contribuinte</a>
+    </br></br>
+    <h1>Listagem de contribuintes</h1>
+    </br>
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th scope="col">CNPJ:</th>
+                <th scope="col">Razão Social:</th>
+                <th scope="col">Tem Beneficio?</th>
+                <th scope="col">Regime de Tributação:</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any()) // Verifica se a Model não é nula e contém dados
+            {
+                foreach (var contrib in Model) {
+                    <tr>
+                        <td class="cnpj">@contrib.Contribuinte.Cnpj</td>
+                        <td>@contrib.Contribuinte.RazaoSocial</td>
+                        <td>
+                            @if (contrib.Beneficios != null && contrib.Beneficios.Any()) {
+                                <span>Sim</span>
+                            }
+                            else {
+                                <span>Não</span> <!-- Caso não tenha benefício -->
+                            }
+
+                        <td>
+                                @switch (contrib.RegimeTributacao) {
+                                    case 1:
+                                    <span>Microempresa municipal</span>
+                                        break;
+                                    case 2:
+                                    <span>Estimativa</span>
+                                        break;
+                                    case 3:
+                                    <span>Sociedade de profissionais</span>
+                                        break;
+                                    case 4:
+                                    <span>Cooperativa</span>
+                                        break;
+                                    case 5:
+                                    <span>Microempresário Individual (MEI)</span>
+                                        break;
+                                    case 6:
+                                    <span>Microempresário e Empresa de Pequeno Porte (ME EPP)</span>
+                                        break;
+                                    case 7:
+                                    <span>Tributação por Faturamento (Variável)</span>
+                                        break;
+                                    case 8:
+                                    <span>Fixo</span>
+                                        break;
+                                    case 9:
+                                    <span>Isenção</span>
+                                        break;
+                                    case 10:
+                                    <span>Imune</span>
+                                        break;
+                                    case 11:
+                                    <span>Exigibilidade suspensa por decisão judicial</span>
+                                        break;
+                                    case 12:
+                                    <span>Exigibilidade Suspensa por Procedimento Administrativo</span>
+                                        break;
+                                    default:
+                                    <span>Regime Desconhecido</span>
+                                        break;
+                                }
+                        </td>
+                        <td text-align: right>
+                            <div>
+                                <a class="btn btn-primary btn-sm" asp-route-id="@contrib.Contribuinte.Id" asp-controller="Contribuinte" asp-action="EditarContrib">Editar</a>
+                                <a class="btn btn-danger btn-sm" asp-route-id="@contrib.Contribuinte.Id" asp-controller="Contribuinte" asp-action="ApagarConfirmacao">Apagar</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+<script>
+    function formatCNPJ(cnpj) {
+        // Remove caracteres não numéricos
+        cnpj = cnpj.replace(/\D/g, "");
+
+        // Verifica se o CNPJ tem 14 caracteres
+        if (cnpj.length === 14) {
+            // Formata o CNPJ
+            return cnpj.replace(
+                /^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/,
+                "$1.$2.$3/$4-$5"
+            );
+        }
+
+        return cnpj; // Retorna o valor original caso o CNPJ seja inválido
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Formata todos os CNPJs ao carregar a página
+        let cnpjElements = document.querySelectorAll('.cnpj');
+        cnpjElements.forEach(function (el) {
+            el.textContent = formatCNPJ(el.textContent);
+        });
+    });
+</script>
+
+
